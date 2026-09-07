@@ -17,7 +17,13 @@ def seed_db(db: Session):
             "max_credits_per_term": 18,
             "preferred_days_off": ["Friday"],
             "difficulty_tolerance": "medium",
-            "preferred_time_of_day": "morning"
+            "preferred_time_of_day": "morning",
+            "wake_up_time": "07:00",
+            "sleep_time": "23:00",
+            "study_hours_per_day": 3,
+            "transit_time_minutes": 45,
+            "gym_time_preference": "afternoon",
+            "gym_duration_minutes": 60
         }
     )
     
