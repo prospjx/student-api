@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: studentapi-deployment
+  labels:
+    app: studentapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: studentapi
+  template:
+    metadata:
+      labels:
+        app: studentapi
+    spec:
+      containers:
+        - name: studentapi
+          image: prospjx/studentapi:latest
+          ports:
+            - containerPort: 8002
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: studentapi-configmap
+                  key: POSTGRES_USER
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: studentapi-configmap
+                  key: POSTGRES_DB
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: studentapi-secret
+                  key: POSTGRES_PASSWORD
+            - name: DATABASE_URL
+              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/$(POSTGRES_DB)"
