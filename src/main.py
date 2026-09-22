@@ -1,11 +1,13 @@
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
+from fastapi import FastAPI
+
+from src.database import Base, SessionLocal, engine
 from src.routers import students
-from src.database import engine, Base, SessionLocal
 from src.seed import seed_db
 
 Base.metadata.create_all(bind=engine)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,13 +19,14 @@ async def lifespan(app: FastAPI):
         db.close()
     yield
 
+
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Student API",
     version="1.0.0",
     description="Manages student profiles and preferences.",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -35,6 +38,7 @@ app.add_middleware(
 )
 
 app.include_router(students.router, prefix="/api/v1")
+
 
 @app.get("/health")
 def health_check():
