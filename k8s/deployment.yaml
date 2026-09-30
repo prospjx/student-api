@@ -14,9 +14,11 @@ spec:
       labels:
         app: studentapi
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: studentapi
-          image: ghcr.io/prospjx/studentapi:latest
+          image: ghcr.io/prospjx/student-api:latest
           ports:
             - containerPort: 8002
           env:
