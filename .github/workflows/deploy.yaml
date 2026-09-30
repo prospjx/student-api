@@ -36,7 +36,7 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply --validate=false -f k8s/configmap.yaml
+          kubectl apply --validate=false -f k8s/configmaps.yaml
           kubectl create secret generic studentapi-secret \
             --from-literal=POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
             --dry-run=client -o yaml | kubectl apply --validate=false -f -
