@@ -23,6 +23,9 @@ jobs:
       - name: Install Kubectl
         uses: azure/setup-kubectl@v4
 
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -34,30 +37,29 @@ jobs:
         run: |
           aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
-      - name: Deploy to Kubernetes
+      - name: Ensure Image Pull Secret
         run: |
-          kubectl apply --validate=false -f k8s/configmaps.yaml
-          kubectl create secret generic studentapi-secret \
-            --from-literal=POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
-            --dry-run=client -o yaml | kubectl apply --validate=false -f -
           kubectl create secret docker-registry ghcr-secret \
             --docker-server=ghcr.io \
             --docker-username=${{ github.actor }} \
             --docker-password=${{ secrets.GITHUB_TOKEN }} \
             --dry-run=client -o yaml | kubectl apply --validate=false -f -
-          kubectl apply --validate=false -f k8s/deployment.yaml
-          kubectl apply --validate=false -f k8s/service.yaml
-          kubectl rollout restart deployment/studentapi-deployment
 
-      - name: Check rollout status
+      - name: Deploy with Helm
         run: |
-          if ! kubectl rollout status deployment/studentapi-deployment --timeout=120s; then
-            echo "::error::Rollout timed out or failed. Fetching pod diagnostics..."
-            echo "=== POD STATUS ==="
-            kubectl get pods -l app=studentapi  -o wide
-            echo "=== POD EVENTS & DESCRIPTION ==="
-            kubectl describe pods -l app=studentapi 
-            echo "=== POD LOGS ==="
-            kubectl logs -l app=studentapi  --tail=100 --all-containers=true
-            exit 1
-          fi
+          helm upgrade --install studentapi ./helm \
+            --set image.tag="v${{ github.event.workflow_run.run_number }}" \
+            --set postgres.password='${{ secrets.POSTGRES_PASSWORD }}' \
+            --wait \
+            --timeout 120s
+
+      - name: Check rollout diagnostics on failure
+        if: failure()
+        run: |
+          echo "::error::Deployment failed. Fetching pod diagnostics..."
+          echo "=== POD STATUS ==="
+          kubectl get pods -l app=studentapi -o wide
+          echo "=== POD EVENTS & DESCRIPTION ==="
+          kubectl describe pods -l app=studentapi
+          echo "=== POD LOGS ==="
+          kubectl logs -l app=studentapi --tail=100 --all-containers=true
