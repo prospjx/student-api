@@ -6,6 +6,8 @@ metadata:
     {{- include "studentapi.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "studentapi.selectorLabels" . | nindent 6 }}
