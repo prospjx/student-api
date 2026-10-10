@@ -9,3 +9,4 @@ black
 ruff
 pytest>=8.0.0
 httpx>=0.25.0
+prometheus-client>=0.20.0
