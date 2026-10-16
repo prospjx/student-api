@@ -26,6 +26,9 @@ def seed_db(db: Session):
             "transit_time_minutes": 45,
             "gym_time_preference": "afternoon",
             "gym_duration_minutes": 60,
+            "energy_chronotype": "morning_lark",
+            "study_session_style": "deep_work",
+            "min_gap_for_commute_hours": 3,
         },
     )
 

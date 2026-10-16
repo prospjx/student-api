@@ -36,6 +36,9 @@ def test_update_student_success(client, seed_student):
             "transit_time_minutes": 20,
             "gym_time_preference": "morning",
             "gym_duration_minutes": 50,
+            "energy_chronotype": "night_owl",
+            "study_session_style": "pomodoro",
+            "min_gap_for_commute_hours": 4,
         },
     }
     response = client.put(f"/api/v1/students/{DEFAULT_STUDENT_ID}", json=payload)
@@ -45,11 +48,15 @@ def test_update_student_success(client, seed_student):
     assert data["preferences"]["max_credits_per_term"] == 15
     assert data["preferences"]["preferred_days_off"] == ["Wednesday"]
     assert data["preferences"]["difficulty_tolerance"] == "low"
+    assert data["preferences"]["energy_chronotype"] == "night_owl"
+    assert data["preferences"]["study_session_style"] == "pomodoro"
+    assert data["preferences"]["min_gap_for_commute_hours"] == 4
 
     # Verify persistence by fetching again
     fetch_resp = client.get(f"/api/v1/students/{DEFAULT_STUDENT_ID}")
     assert fetch_resp.status_code == 200
     assert fetch_resp.json()["name"] == "Jane Smith"
+    assert fetch_resp.json()["preferences"]["energy_chronotype"] == "night_owl"
 
 
 def test_update_student_not_found(client):

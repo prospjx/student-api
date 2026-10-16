@@ -15,6 +15,11 @@ class StudentPreferences(BaseModel):
     gym_time_preference: str = "afternoon"  # morning, afternoon, evening, none
     gym_duration_minutes: int = 60  # workout duration in minutes
 
+    # Advanced Routine & Chronotype preferences
+    energy_chronotype: str = "morning_lark"  # morning_lark, afternoon_peak, night_owl
+    study_session_style: str = "deep_work"  # pomodoro, deep_work
+    min_gap_for_commute_hours: int = 3  # min campus gap before commuting home (hours)
+
 
 class StudentProfile(BaseModel):
     student_id: str
@@ -23,3 +28,4 @@ class StudentProfile(BaseModel):
 
     class Config:
         from_attributes = True
+
